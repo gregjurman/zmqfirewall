@@ -18,23 +18,24 @@ class Action(object):
     """Base action handler"""
     __metaclass__ = ActionMeta
     
-    action = None
+    action = (lambda: None)
 
     log_message = True
 
     @classmethod
-    def req(cls, **kw):
+    def req(cls, msg, **kw):
         """
-        Generate an instance of the Handler.
+        Handle the action.
         """
         ins = object.__new__(cls)
         ins.__init__(**kw)
-        return ins
+        
+        return ins.action(msg)
+
 
     def __new__(cls, **kw):
         """Return a new action handler class."""
         return type("%s_s" % cls.__name__, (cls,), cls.__dict__)
-
 
     def __init__(self, **kw):
         for k, v in kw.iteritems():
