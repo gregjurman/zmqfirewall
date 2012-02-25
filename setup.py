@@ -9,7 +9,7 @@ version = '0.1'
 setup(
     name = 'zmqfirewall',
     version = version,
-    description = "ACL based ZeroMQ message repeater",
+    description = "Object-based ZeroMQ message repeater/firewall",
     long_description = """\
     """,
     classifiers = [], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
