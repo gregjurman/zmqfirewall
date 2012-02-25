@@ -4,7 +4,7 @@ from nose.tools import eq_
 
 def test_good_action():
     class TestAction(zmqfirewall.actions.Action):
-        def action(message):
+        def action(self, message):
             return message
 
 def test_missing_action():
