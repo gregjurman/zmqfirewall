@@ -16,14 +16,14 @@ made. An Action that does not return anything 'drops' the message.
     from zmqfirewall.actions import Action
 
     class HelloAction(Action):
-        def action(message):
+        def action(self, message):
             return "Hello %s" % message
 
 ### Action that drops messages that doesn't have the word 'important' in them
     from zmqfirewall.actions import Action
 
     class ImportantOnlyAction(Action):
-        def action(message):
+        def action(self, message):
             if 'important' in str(message).lower().split(' '):
                 return message
 
@@ -31,6 +31,6 @@ made. An Action that does not return anything 'drops' the message.
     from zmqfirewall.actions import Action
 
     class HijackMessageAction(Action):
-        def action(message):
+        def action(self, message):
             message.topic = 'hijacked'
             return message
