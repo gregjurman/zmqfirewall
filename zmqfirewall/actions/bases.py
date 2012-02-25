@@ -33,7 +33,7 @@ class Action(object):
 
     def __new__(cls, **kw):
         """Return a new action handler class."""
-        return type("%s_s % cls.__name__, (cls,), cls.__dict__)
+        return type("%s_s" % cls.__name__, (cls,), cls.__dict__)
 
 
     def __init__(self, **kw):
