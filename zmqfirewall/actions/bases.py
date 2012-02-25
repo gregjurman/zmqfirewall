@@ -1,18 +1,43 @@
 import logging
 
-log = logging.getLogger('zmqfirewall.action')
+log = logging.getLogger('zmqfirewall')
 
 class ActionMeta(type):
-    registered_actions = {}
+    _registered_actions = {}
+    _action_index = {}
 
     def __new__(mcs, name, bases, dct):
         if name != 'Action':
             if 'action' not in dct or not callable(dct['action']):
                 raise AttributeError, '%s is missing an action callback' % name
+        else:
+            return type.__new__(mcs, name, bases, dct)
 
         ins = type.__new__(mcs, name, bases, dct)
 
+        if name not in [x.__name__ for x in mcs._registered_actions]:
+            handler = ins.req()
+            mcs._registered_actions[ins] = handler
+
+            ins.action = handler.action 
+
+            if ins.name is None:
+                index_name = ins.__name__.lower().replace('action', '')
+            else:
+                index_name = ins.name
+
+            mcs._action_index[index_name] = ins
+
+            log.info("Added %s to action registry as '%s'" % (name, index_name))
+        else:
+            raise TypeError, "%s is already registered!" % name
+
         return ins
+
+    @classmethod
+    def get_action_by_name(mcs, name):
+        return mcs._registered_actions[mcs._action_index[name]]
+
 
 class Action(object):
     """Base action handler"""
@@ -21,16 +46,18 @@ class Action(object):
     action = (lambda: None)
 
     log_message = True
+    
+    name = None
 
     @classmethod
-    def req(cls, msg, **kw):
+    def req(cls, **kw):
         """
         Handle the action.
         """
         ins = object.__new__(cls)
         ins.__init__(**kw)
         
-        return ins.action(msg)
+        return ins
 
 
     def __new__(cls, **kw):
