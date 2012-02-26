@@ -17,7 +17,8 @@ made. An Action that does not return anything 'drops' the message.
 
     class HelloAction(Action):
         def action(self, message):
-            return "Hello %s" % message
+            message.body = "Hello %s" % message
+            return message
 
 ### Action that drops messages that don't have the word 'important' in them
     from zmqfirewall.actions import Action
