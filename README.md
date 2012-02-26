@@ -19,7 +19,7 @@ made. An Action that does not return anything 'drops' the message.
         def action(self, message):
             return "Hello %s" % message
 
-### Action that drops messages that doesn't have the word 'important' in them
+### Action that drops messages that don't have the word 'important' in them
     from zmqfirewall.actions import Action
 
     class ImportantOnlyAction(Action):
@@ -34,3 +34,30 @@ made. An Action that does not return anything 'drops' the message.
         def action(self, message):
             message.topic = 'hijacked'
             return message
+
+### Log splitting example
+    from zmqfirewall.actions import Action, DropMessageAction
+
+    class InfoLogMessageAction(Action):
+        def action(self, message):
+            # Move message to the 'log.informational' queue
+            message.topic = "log.informational"
+            return message
+
+    class ImportantLogMessageAction(Action):
+        def action(self, message):
+            # Move message to the 'log.important' queue
+            message.topic = "log.important" 
+            return message
+
+    class LoggingRedirectAction(Action):
+        def action(self, message):
+            tag = str(message).lower().split(' ')[0]
+
+            if tag in ['error', 'critical', 'fatal']:
+                return ImportantLogMessageAction
+            elif tag in ['info', 'debug']:
+                return InfoLogMessageAction
+            else:
+                # Drop the message
+                return DropMessageAction
