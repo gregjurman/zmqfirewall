@@ -66,11 +66,11 @@ class Action(object):
         return ins
 
 
-    def __new__(cls, **kw):
-        """Return a new action handler class."""
-        return type("%s_s" % cls.__name__, (cls,), cls.__dict__)
+    #def __new__(cls, **kw):
+    #    """Return a new action handler class."""
+    #    return type("%s_s" % cls.__name__, (cls,), cls.__dict__)
 
-    def __init__(self, **kw):
-        for k, v in kw.iteritems():
-            setattr(self, k, v)
+    #def __init__(self, **kw):
+    #    for k, v in kw.iteritems():
+    #        setattr(self, k, v)
 
