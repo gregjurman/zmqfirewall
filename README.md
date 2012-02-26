@@ -62,3 +62,34 @@ made. An Action that does not return anything 'drops' the message.
             else:
                 # Drop the message
                 return DropMessageAction
+
+Creating Rules
+--------------
+
+### Basic Message Acceptance Rule
+    from zmqfirewall.rules import Rule
+
+    class AcceptAllMessagesRule(Rule):
+        filter_chain = []
+
+
+### Only pass messages from the 'log.important' topic
+    from zmqfirewall.actions import FilterTopicAction
+    from zmqfirewall.rules import Rule
+
+    class AcceptImportantMessagesRule(Rule):
+        filter_chain = [
+            FilterTopicAction('log.important')
+        ]
+
+### Mangle all messages from the topic 'log' and prepend date/time
+    from zmqfirewall.actions import Action
+    from zmqfirewall.rules import Rule
+    from datetime import datetime
+
+    class PrependDatetimeRule(Rule):
+        filter_chain = [
+            Action(
+                action = lambda m: m.set_body('[%s] %s' % (datetime.now(), m))
+            )
+        ]
