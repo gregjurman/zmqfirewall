@@ -69,6 +69,7 @@ Creating Rules
 ### Basic Message Acceptance Rule
     from zmqfirewall.rules import Rule
 
+    # This is a really stupid example, btw
     class AcceptAllMessagesRule(Rule):
         filter_chain = []
 
@@ -79,7 +80,7 @@ Creating Rules
 
     class AcceptImportantMessagesRule(Rule):
         filter_chain = [
-            FilterTopicAction('log.important')
+            FilterTopicAction(['log.important'])
         ]
 
 ### Mangle all messages from the topic 'log' and prepend date/time
@@ -89,6 +90,7 @@ Creating Rules
 
     class PrependDatetimeRule(Rule):
         filter_chain = [
+            FilterTopicAction(['log'], on_failure='accept'),
             Action(
                 action = lambda m: m.set_body('[%s] %s' % (datetime.now(), m))
             )
