@@ -13,7 +13,7 @@ setup(
     long_description = """\
     """,
     classifiers = [], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-    keywords = 'zeromq zmq',
+    keywords = 'zeromq zmq twisted',
     author = 'Greg Jurman',
     author_email = 'gdj2214@rit.edu',
     url = 'https://github.com/gregjurman/zmqfirewall',
@@ -21,7 +21,11 @@ setup(
     packages = find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data = True,
     zip_safe = False,
-    install_requires = ['pyzmq'],
+    install_requires = [
+        'pyzmq',
+        'txZMQ',
+        'Twisted>=10.0',
+    ],
     tests_require = ['nose'],
     test_suite = 'nose.collector',
     entry_points = """
