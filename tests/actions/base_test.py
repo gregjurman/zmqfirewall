@@ -26,7 +26,7 @@ def test_bad_action():
         eq_(str(e), 'BadActionTestAction is missing an action callback')
 
 
-def test_duplicate_action():
+def test_duplicate_name_action():
     try:
         class WorkingActionTestAction(zmqfirewall.actions.Action):
             def action(self, message):
@@ -41,3 +41,15 @@ def test_duplicate_action():
         assert(False)
     except NameError as e:
         eq_(str(e),"An action named 'workingactiontest' is already registered!")
+
+def test_duplicate_cls_name():
+    try:
+        class SameNameClassTestAction(zmqfirewall.actions.Action):
+            def action(self, msg):
+                pass
+
+        import helper
+
+        assert(False)
+    except TypeError as e:
+        eq_(str(e), 'SameNameClassTestAction is already registered!')
