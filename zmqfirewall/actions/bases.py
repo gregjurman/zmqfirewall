@@ -1,6 +1,9 @@
 import logging
 
-log = logging.getLogger('zmqfirewall')
+core_log = logging.getLogger('zmqfirewall.core')
+action_log = logging.getLogger('zmqfirewall.action')
+
+__all__ = ['Action']
 
 class ActionMeta(type):
     _registered_actions = {}
@@ -15,28 +18,29 @@ class ActionMeta(type):
 
         ins = type.__new__(mcs, name, bases, dct)
 
-        if name not in [x.__name__ for x in mcs._registered_actions]:
-            handler = ins.req()
+        if 'no_register' not in dct or not dct['no_register']:
+            if name not in [x.__name__ for x in mcs._registered_actions]:
+                handler = ins.req()
 
-            # Short ciruit
-            ins.action = handler.action 
+                # Short ciruit
+                ins.action = handler.action 
 
-            if ins.name is None:
-                # Rip of the word action from the end if it is there
-                index_name = ins.__name__.lower()[::-1].replace('noitca', '', 1)[::-1]
+                if ins.name is None:
+                    # Rip of the word action from the end if it is there
+                    index_name = ins.__name__.lower()[::-1].replace('noitca', '', 1)[::-1]
+                else:
+                    index_name = ins.name
+
+                if index_name in mcs._action_index:
+                    # Hold on, something is trying to overwrite a registered action
+                    raise NameError, "An action named '%s' is already registered!" % index_name
+
+                mcs._registered_actions[ins] = handler
+                mcs._action_index[index_name] = ins
+
+                core_log.info("Added %s to action registry as '%s'" % (name, index_name))
             else:
-                index_name = ins.name
-
-            if index_name in mcs._action_index:
-                # Hold on, something is trying to overwrite a registered action
-                raise NameError, "An action named '%s' is already registered!" % index_name
-
-            mcs._registered_actions[ins] = handler
-            mcs._action_index[index_name] = ins
-
-            log.info("Added %s to action registry as '%s'" % (name, index_name))
-        else:
-            raise TypeError, "%s is already registered!" % name
+                raise TypeError, "%s is already registered!" % name
 
         return ins
 
