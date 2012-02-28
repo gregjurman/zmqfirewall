@@ -20,8 +20,11 @@ def test_default_filter_action():
     out = filt.action(test_msg)
     eq_(out, test_msg)
 
-    out = filt.action(test_msg_topic)
-    eq_(out, None)
+    try:
+        filt.action(test_msg_topic)
+        assert(False)
+    except za.DropMessageAction:
+        pass
 
 def test_callable_filter_action():
     filt = za.FilterTopicAction(['test'])
@@ -29,14 +32,19 @@ def test_callable_filter_action():
     out = filt(test_msg)
     eq_(out, test_msg)
 
-    out = filt.action(test_msg_topic)
-    eq_(out, None)
+    try:
+        out = filt.action(test_msg_topic)
+        assert(False)
+    except za.DropMessageAction:
+        pass
 
 def test_filter_str_action():
     nfilt = za.FilterTopicAction(['test'], on_success='drop', on_failure='accept')
 
-    out = nfilt.action(test_msg)
-    eq_(out, None)
+    try:
+        nfilt.action(test_msg)
+    except za.DropMessageAction:
+        pass
 
     out = nfilt.action(test_msg_topic)
     eq_(out, test_msg_topic)
@@ -60,10 +68,11 @@ def test_accept_action():
 
 
 def test_drop_action():
-    out = za.DropMessageAction.action(test_msg)
-
-    eq_(out, None)
-
+    try:
+        za.DropMessageAction.action(test_msg)
+        assert(False)
+    except za.DropMessageAction:
+        pass
 
 def test_custom_action():
     class MangleTestAction(za.Action):
