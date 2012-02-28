@@ -77,12 +77,12 @@ class FirewallFilter(object):
             try:
                 # TODO: Add case handling for when a non-message comes out
                 message = action(message)
-            except DivertAction as diversion:
-                # Append the diversion so its run next
-                actions.appendleft(diversion)
             except InterruptAction as interuption:
                 # Do this action then return the result
                 return interruption(message)
+            except DivertAction as diversion:
+                # Append the diversion so its run next
+                actions.appendleft(diversion)
             except moksha.firewall.actions.DropMessageAction:
                 # Drop the message completely
                 return None
