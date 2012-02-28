@@ -1,6 +1,6 @@
 import logging
 import zmqfirewall.actions
-from zmqfirewall.exceptions import DivertAction
+from zmqfirewall.exceptions import DivertAction, InterruptAction
 
 from collections import deque
 
