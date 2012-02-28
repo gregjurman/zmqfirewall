@@ -80,7 +80,7 @@ class DivertFilterCheeseAction(zmqfirewall.actions.Action):
 class InterruptFilterCheeseAction(zmqfirewall.actions.Action):
     def action(self, message):
         if 'cheese' in message.body.split(' '):
-            interrupt(AppendHelloAction)
+            interrupt('appendhello')
         else:
             return message
 
