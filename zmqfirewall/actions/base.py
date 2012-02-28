@@ -18,12 +18,16 @@ class ActionMeta(type):
 
         ins = type.__new__(mcs, name, bases, dct)
 
+        # This works if the action doesn't expect any __init__
+        try:
+            handler = ins.req()
+            # Short ciruit
+            ins.action = handler.action 
+        except TypeError:
+            pass
+
         if 'no_register' not in dct or not dct['no_register']:
             if name not in [x.__name__ for x in mcs._registered_actions]:
-                handler = ins.req()
-
-                # Short ciruit
-                ins.action = handler.action 
 
                 if ins.name is None:
                     # Rip of the word action from the end if it is there
@@ -72,11 +76,11 @@ class Action(object):
     def __call__(self, message):
         return self.action(message)
 
-    #def __new__(cls, **kw):
-    #    """Return a new action handler class."""
-    #    return type("%s_s" % cls.__name__, (cls,), cls.__dict__)
+    def __new__(cls, **kw):
+        """Return a new action handler class."""
+        return type("%s_s" % cls.__name__, (cls,), cls.__dict__)
 
-    #def __init__(self, **kw):
-    #    for k, v in kw.iteritems():
-    #        setattr(self, k, v)
+    def __init__(self, **kw):
+        for k, v in kw.iteritems():
+            setattr(self, k, v)
 
