@@ -69,6 +69,8 @@ class Action(object):
         
         return ins
 
+    def __call__(self, message):
+        return self.action(message)
 
     #def __new__(cls, **kw):
     #    """Return a new action handler class."""

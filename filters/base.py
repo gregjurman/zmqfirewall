@@ -1,5 +1,6 @@
 import logging
 import moksha.firewall.actions
+from moksha.firewall.exceptions import DivertAction
 
 from collections import deque
 
@@ -66,9 +67,12 @@ class FirewallFilter(object):
 
         return ins
 
-    @classmethod
-    def handle(self, message):
+    def __call__(self, message):
         actions = deque(self.chain)
 
-        for action in actions:
-            out = action.action(message)
+        while(len(actions) > 0):
+            try:
+                out = action(message)
+            except DivertAction as diversion:
+                # Append the diversion so its run next
+                actions.appendleft(diversion) 
