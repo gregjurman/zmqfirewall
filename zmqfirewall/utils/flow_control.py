@@ -1,4 +1,4 @@
-from moksha.firewall.exceptions import DivertAction
+from zmqfirewall.firewall.exceptions import DivertAction
 
 __all__ = ['divert']
 

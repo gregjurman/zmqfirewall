@@ -1,7 +1,7 @@
 import logging
 
-core_log = logging.getLogger('moksha.firewall.core')
-action_log = logging.getLogger('moksha.firewall.action')
+core_log = logging.getLogger('zmqfirewall.firewall.core')
+action_log = logging.getLogger('zmqfirewall.firewall.action')
 
 __all__ = ['Action']
 

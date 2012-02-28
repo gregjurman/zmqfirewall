@@ -1,5 +1,5 @@
 import base
-from moksha.firewall.utils import get_action
+from zmqfirewall.firewall.utils import get_action
 
 __all__ = ['DropMessageAction', 'AcceptMessageAction', 'FilterTopicAction']
 

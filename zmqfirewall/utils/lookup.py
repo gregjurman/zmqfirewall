@@ -1,5 +1,5 @@
-from moksha.firewall.actions.base import ActionMeta
-from moksha.firewall.filters.base import FilterMeta
+from zmqfirewall.firewall.actions.base import ActionMeta
+from zmqfirewall.firewall.filters.base import FilterMeta
 
 __all__ = ['get_action', 'get_filter']
 
