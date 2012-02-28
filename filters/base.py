@@ -71,7 +71,7 @@ class FirewallFilter(object):
         actions = deque(self.chain) #XXX:maybe we can remove this deque
 
         while(len(actions) > 0):
-            action = actions.popleft()
+            action = actions.popleft().action
             try:
                 # TODO: Add case handling for when a non-message comes out
                 message = action(message)
