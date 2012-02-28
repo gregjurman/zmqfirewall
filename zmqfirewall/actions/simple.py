@@ -1,5 +1,5 @@
 import base
-from zmqfirewall.firewall.utils import get_action
+from zmqfirewall.utils import get_action
 
 __all__ = ['DropMessageAction', 'AcceptMessageAction', 'FilterTopicAction']
 

@@ -1,13 +1,13 @@
 import logging
-import zmqfirewall.firewall.actions
-from zmqfirewall.firewall.exceptions import DivertAction
+import zmqfirewall.actions
+from zmqfirewall.exceptions import DivertAction
 
 from collections import deque
 
 __all__ = ['FirewallFilter']
 
-core_log = logging.getLogger('zmqfirewall.firewall.core')
-filter_log = logging.getLogger('zmqfirewall.firewall.filter')
+core_log = logging.getLogger('zmqfirewall.core')
+filter_log = logging.getLogger('zmqfirewall.filter')
 
 class FilterMeta(type):
     _registered_filters = {}

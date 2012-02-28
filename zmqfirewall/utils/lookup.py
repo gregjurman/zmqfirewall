@@ -1,5 +1,5 @@
-from zmqfirewall.firewall.actions.base import ActionMeta
-from zmqfirewall.firewall.filters.base import FilterMeta
+from zmqfirewall.actions.base import ActionMeta
+from zmqfirewall.filters.base import FilterMeta
 
 __all__ = ['get_action', 'get_filter']
 
