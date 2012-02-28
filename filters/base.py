@@ -35,7 +35,7 @@ class FilterMeta(type):
                 # Hold on, something is trying to overwrite a registered filter
                 raise NameError, "A filter named '%s' is already registered!" % index_name
 
-            mcs._registered_filter[ins] = handler
+            mcs._registered_filters[ins] = handler
             mcs._filter_index[index_name] = ins
 
             core_log.info("Added %s to filter registry as '%s'" % (name, index_name))
@@ -68,12 +68,13 @@ class FirewallFilter(object):
         return ins
 
     def __call__(self, message):
-        actions = deque(self.chain)
+        actions = deque(self.chain) #XXX:maybe we can remove this deque
 
         while(len(actions) > 0):
+            action = actions.popleft()
             try:
                 # TODO: Add case handling for when a non-message comes out
                 out = action(message)
             except DivertAction as diversion:
                 # Append the diversion so its run next
-                actions.appendleft(diversion) 
+                actions.appendleft(diversion)
