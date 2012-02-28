@@ -1,10 +1,11 @@
 from moksha.firewall.utils import get_action
+from moksha.firewall.actions.base import ActionMeta
 
 class DivertAction(Exception):
     def __init__(self, new_action):
         if isinstance(new_action, str):
             self.action = get_action(new_action).action
-        elif issubclass(new_action.__class__, bases.ActionMeta):
+        elif issubclass(new_action.__class__, ActionMeta):
             self.action = new_action.action
         else:
             raise ValueError, 'new_action must be a string or Action, got %r' % new_action
