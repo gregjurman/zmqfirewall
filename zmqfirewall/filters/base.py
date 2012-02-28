@@ -29,11 +29,13 @@ class FilterMeta(type):
         index_name = ins.name
 
         if name not in [x.__name__ for x in mcs._registered_filters]:
-            handler = ins.req()
 
             if index_name in mcs._filter_index:
                 # Hold on, something is trying to overwrite a registered filter
                 raise NameError, "A filter named '%s' is already registered!" % index_name
+
+            handler = ins.req()
+            ins.handle = handler
 
             mcs._registered_filters[ins] = handler
             mcs._filter_index[index_name] = ins
