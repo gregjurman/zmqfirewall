@@ -1,6 +1,6 @@
 import zmqfirewall.filters
 from zmqfirewall.actions import AcceptMessageAction, FilterTopicAction
-from zmqfirewall.utils.lookup import get_filter
+from zmqfirewall.utils import get_filter, divert
 
 from nose.tools import eq_
 
@@ -81,7 +81,7 @@ def divert_filter_test():
     class DivertFilterTestFilter(zmqfirewall.filters.FirewallFilter):
         chain = [FilterCheeseAction]
 
-    out = DivertFilterTestFilter(test_msg)
+    out = DivertFilterTestFilter.handle(test_msg)
     eq_(str(out), 'Hello, I am the cheese')
 
 def interrupt_filter_test():

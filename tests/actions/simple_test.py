@@ -4,12 +4,12 @@ from tests.helper import Message
 from nose.tools import eq_
 
 test_msg = Message(
-    message="I am the cheese",
+    body="I am the cheese",
     from_host="127.0.0.1", 
     topic='test')
 
 test_msg_topic = Message(
-    message="I am the cheese",
+    body="I am the cheese",
     from_host="127.0.0.1",
     topic='diff_topic')
 
@@ -77,7 +77,7 @@ def test_drop_action():
 def test_custom_action():
     class MangleTestAction(za.Action):
         def action(self, msg):
-            msg.message = "Hello, " + msg.message
+            msg.body = "Hello, " + msg.body
             return msg
 
     out = MangleTestAction.action(test_msg)
