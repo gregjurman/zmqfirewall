@@ -7,6 +7,6 @@ def divert(new_action):
     raise diversion
 
 def interrupt(new_action):
-    from moksha.firewall.exceptions import InterruptAction
+    from zmqfirewall.exceptions import InterruptAction
     interruption = InterruptAction(new_action)
     raise interruption
