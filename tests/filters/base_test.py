@@ -1,6 +1,6 @@
 import zmqfirewall.filters
 from zmqfirewall.actions import AcceptMessageAction, FilterTopicAction
-from zmqfirewall.utils import get_filter, divert
+from zmqfirewall.utils import get_filter, divert, interrupt
 
 from nose.tools import eq_
 
@@ -70,20 +70,46 @@ class AppendHelloAction(zmqfirewall.actions.Action):
         message.body = "Hello, %s" % message.body
         return message
 
-class FilterCheeseAction(zmqfirewall.actions.Action):
+class DivertFilterCheeseAction(zmqfirewall.actions.Action):
     def action(self, message):
         if 'cheese' in message.body.split(' '):
             divert(AppendHelloAction)
         else:
             return message
 
+class InterruptFilterCheeseAction(zmqfirewall.actions.Action):
+    def action(self, message):
+        if 'cheese' in message.body.split(' '):
+            interrupt(AppendHelloAction)
+        else:
+            return message
+
+class AppendNotCheeseAction(zmqfirewall.actions.Action):
+    def action(self, message):
+        message.body = "%s. I am not the cheese" % message.body
+        return message
+
 def divert_filter_test():
     class DivertFilterTestFilter(zmqfirewall.filters.FirewallFilter):
-        chain = [FilterCheeseAction]
+        chain = [DivertFilterCheeseAction]
 
+    test_msg = Message("I am the cheese", "localhost", topic="log_message")
     out = DivertFilterTestFilter.handle(test_msg)
     eq_(str(out), 'Hello, I am the cheese')
 
+    bad_test_msg = Message("I am the ham", "localhost", topic="bad_topic")
+    out = DivertFilterTestFilter.handle(bad_test_msg)
+    eq_(str(out), 'I am the ham')
+
 def interrupt_filter_test():
-    pass
+    class InterruptFilterTestFilter(zmqfirewall.filters.FirewallFilter):
+        chain = [InterruptFilterCheeseAction, AppendNotCheeseAction]
+
+    test_msg = Message("I am the cheese", "localhost", topic="log_message")
+    out = InterruptFilterTestFilter.handle(test_msg)
+    eq_(str(out), 'Hello, I am the cheese')
+
+    bad_test_msg = Message("I am the ham", "localhost", topic="bad_topic")
+    out = InterruptFilterTestFilter.handle(bad_test_msg)
+    eq_(str(out), 'I am the ham. I am not the cheese')
 
