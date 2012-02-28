@@ -1,4 +1,4 @@
-from moksha.firewall.utils import get_action
+from zmqfirewall.utils import get_action
 
 class DivertAction(Exception):
     def __init__(self, new_action):
