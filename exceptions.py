@@ -1,3 +1,5 @@
+from utils import get_action
+
 class DivertAction(Exception):
     def __init__(self, new_action):
         if isinstance(new_action, str):
@@ -9,3 +11,6 @@ class DivertAction(Exception):
 
     def __call__(self, message):
         return self.action(message)
+
+class InterruptAction(DivertAction):
+    pass

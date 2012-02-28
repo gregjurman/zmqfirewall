@@ -74,7 +74,15 @@ class FirewallFilter(object):
             action = actions.popleft()
             try:
                 # TODO: Add case handling for when a non-message comes out
-                out = action(message)
+                message = action(message)
             except DivertAction as diversion:
                 # Append the diversion so its run next
                 actions.appendleft(diversion)
+            except InterruptAction as interuption:
+                # Do this action then return the result
+                return interruption(message)
+            except DropMessageAction:
+                # Drop the message completely
+                return None
+
+        return message
