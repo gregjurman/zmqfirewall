@@ -1,6 +1,6 @@
 import logging
 import moksha.firewall.actions
-from moksha.firewall.exceptions import DivertAction
+from moksha.firewall.exceptions import DivertAction, InterruptAction
 
 from collections import deque
 
