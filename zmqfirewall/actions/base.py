@@ -64,7 +64,7 @@ class Action(object):
         """
         Handle the action.
         """
-        ins = object.__new__(cls)
+        ins = cls.__new__(cls)
         ins.__init__(**kw)
         
         return ins
