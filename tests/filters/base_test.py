@@ -7,7 +7,7 @@ from nose.tools import eq_
 from tests.helper import Message
 
 test_msg = Message("I am the cheese", "localhost", topic="log_message")
-bad_test_msg = Message("I am not the cheese", "localhost", topic="bad_topic")
+bad_test_msg = Message("I am the ham", "localhost", topic="bad_topic")
 
 def test_basic_filter():
     class TestFilter(zmqfirewall.filters.FirewallFilter):
@@ -36,4 +36,54 @@ def test_basic_filter_process():
 
     out = filt(bad_test_msg)
     eq_(None, out)
+
+
+def bad_filter_chain_test():
+    try:
+        class BadChainFilter(zmqfirewall.filters.FirewallFilter):
+            pass
+        assert(False)
+    except Exception as e:
+        eq_(str(e), 'BadChainFilter does not have a valid chain')
+        
+
+def duplicate_filter_name_test():
+    try:
+        class IAmTheCheeseFilter(zmqfirewall.filters.FirewallFilter):
+            chain = [AcceptMessageAction]
+        assert(False)
+    except Exception as e:
+        eq_(str(e), "A filter named 'iamthecheese' is already registered!")
+
+def filter_already_registered_test():
+    try:
+        class AnotherTestFilter(zmqfirewall.filters.FirewallFilter):
+            chain = [AcceptMessageAction]
+        assert(False)
+    except Exception as e:
+        eq_(str(e), "AnotherTestFilter is already registered!")
+
+
+
+class AppendHelloAction(zmqfirewall.actions.Action):
+    def action(self, message):
+        message.body = "Hello, %s" % message.body
+        return message
+
+class FilterCheeseAction(zmqfirewall.actions.Action):
+    def action(self, message):
+        if 'cheese' in message.body.split(' '):
+            divert(AppendHelloAction)
+        else:
+            return message
+
+def divert_filter_test():
+    class DivertFilterTestFilter(zmqfirewall.filters.FirewallFilter):
+        chain = [FilterCheeseAction]
+
+    out = DivertFilterTestFilter(test_msg)
+    eq_(str(out), 'Hello, I am the cheese')
+
+def interrupt_filter_test():
+    pass
 
