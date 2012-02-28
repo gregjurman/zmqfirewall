@@ -23,6 +23,14 @@ def test_default_filter_action():
     out = filt.action(test_msg_topic)
     eq_(out, None)
 
+def test_callable_filter_action():
+    filt = za.FilterTopicAction(['test'])
+    
+    out = filt(test_msg)
+    eq_(out, test_msg)
+
+    out = filt.action(test_msg_topic)
+    eq_(out, None)
 
 def test_filter_str_action():
     nfilt = za.FilterTopicAction(['test'], on_success='drop', on_failure='accept')
