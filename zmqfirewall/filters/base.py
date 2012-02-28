@@ -72,6 +72,7 @@ class FirewallFilter(object):
 
         while(len(actions) > 0):
             try:
+                # TODO: Add case handling for when a non-message comes out
                 out = action(message)
             except DivertAction as diversion:
                 # Append the diversion so its run next
