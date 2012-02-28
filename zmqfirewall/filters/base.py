@@ -81,7 +81,7 @@ class FirewallFilter(object):
             except InterruptAction as interuption:
                 # Do this action then return the result
                 return interruption(message)
-            except DropMessageAction:
+            except moksha.firewall.actions.DropMessageAction:
                 # Drop the message completely
                 return None
 
