@@ -28,14 +28,14 @@ class FilterTopicAction(base.Action):
         self.topics = topics
         if isinstance(on_failure, str):
             self.on_failure = get_action(on_failure)
-        elif issubclass(on_failure.__class__, bases.ActionMeta):
+        elif issubclass(on_failure.__class__, base.ActionMeta):
             self.on_failure = on_failure
         else:
             raise ValueError, 'on_failure must be a string or Action, got %r' % on_failure
 
         if isinstance(on_success, str):
             self.on_success = get_action(on_success)
-        elif issubclass(on_success.__class__, bases.ActionMeta):
+        elif issubclass(on_success.__class__, base.ActionMeta):
             self.on_success = on_success
         else:
             raise ValueError, 'on_success must be a string or Action, got %r' % on_success
