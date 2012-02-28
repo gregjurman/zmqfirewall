@@ -1,2 +1,2 @@
-from bases import *
+from base import *
 from simple import *

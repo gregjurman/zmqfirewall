@@ -1,10 +1,10 @@
 import logging
-import zmqfirewall.actions
+import moksha.firewall.actions
 
 __all__ = ['Rule']
 
-core_log = logging.getLogger('zmqfirewall.core')
-rule_log = logging.getLogger('zmqfirewall.rule')
+core_log = logging.getLogger('moksha.firewall.core')
+rule_log = logging.getLogger('moksha.firewall.rule')
 
 class RuleMeta(type):
     _registered_rules = {}
