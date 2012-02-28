@@ -77,7 +77,7 @@ class FirewallFilter(object):
             try:
                 # TODO: Add case handling for when a non-message comes out
                 message = action(message)
-            except InterruptAction as interuption:
+            except InterruptAction as interruption:
                 # Do this action then return the result
                 return interruption(message)
             except DivertAction as diversion:
