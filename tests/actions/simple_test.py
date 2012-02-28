@@ -1,6 +1,5 @@
-
 import zmqfirewall.actions as za
-from zmqfirewall.message import Message
+from tests.helper import Message
 
 from nose.tools import eq_
 
