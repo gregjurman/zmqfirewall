@@ -81,7 +81,7 @@ class FirewallFilter(object):
             except InterruptAction as interuption:
                 # Do this action then return the result
                 return interruption(message)
-            except moksha.firewall.actions.DropMessageAction:
+            except zmqfirewall.actions.DropMessageAction:
                 # Drop the message completely
                 return None
 
