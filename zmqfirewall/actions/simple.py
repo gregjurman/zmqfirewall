@@ -3,13 +3,14 @@ from zmqfirewall.utils import get_action
 
 __all__ = ['DropMessageAction', 'AcceptMessageAction', 'FilterTopicAction']
 
-class DropMessageAction(base.Action):
+class DropMessageAction(base.Action, Exception):
     """An Action that drops any message that comes in."""
 
     name = "drop"
 
     def action(self, message):
-        pass
+        # When you see this you will WAT.
+        raise self
 
 class AcceptMessageAction(base.Action):
     """Action that accepts any message that comes in."""
