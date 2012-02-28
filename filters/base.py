@@ -46,7 +46,7 @@ class FilterMeta(type):
 
     @classmethod
     def get_filter_by_name(mcs, name):
-        return mcs._registered_filter[mcs._filter_index[name]]
+        return mcs._registered_filters[mcs._filter_index[name]]
 
 
 class FirewallFilter(object):
