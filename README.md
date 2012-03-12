@@ -4,6 +4,11 @@ zmqfirewall - ZeroMQ Firewall
 A simple, extensible object-based firewall for applications that use ZeroMQ.
 
 
+Note
+====
+
+All of these are proposals. Some are coded in already, but they need tweaking
+
 Creating an Action Handler
 --------------------------
 
