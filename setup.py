@@ -22,11 +22,13 @@ setup(
     include_package_data = True,
     zip_safe = False,
     install_requires = [
-        'pyzmq',
         'txZMQ',
         'Twisted>=10.0',
     ],
-    tests_require = ['nose'],
+    tests_require = [
+        'nose',
+        'mock',
+    ],
     test_suite = 'nose.collector',
     entry_points = """
     # -*- Entry points: -*-
