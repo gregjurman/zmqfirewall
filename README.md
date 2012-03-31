@@ -3,6 +3,18 @@ zmqfirewall - ZeroMQ Firewall
 
 A simple, extensible object-based firewall for applications that use ZeroMQ.
 
+Interface Note
+==============
+
+class TestInterface(Interface):
+    name = "publisher"
+    connection_uri = "pub-tcp://0.0.0.0:7000"
+    filter = None # No filters
+
+class TestSubInt(Interface):
+    name = "subcriber"
+    connection_uri = "sub-tcp://localhost:7001"
+    filter = AcceptMessageFilter(out_interface='publisher')
 
 Note
 ====
