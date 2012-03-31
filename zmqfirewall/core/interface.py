@@ -43,6 +43,10 @@ class InterfaceMeta(type):
             bases = (ZMQSubscriberInterface, Interface, )
         elif uri_properties['type'] == 'pub':
             bases = (ZMQPublisherInterface, Interface, )
+        elif uri_properties['type'] == 'push':
+            bases = (ZMQPushInterface, Interface, )
+        elif uri_properties['type'] == 'pull':
+            bases = (ZMQPullInterface, Interface, )
         else:
             raise NotImplementedError('%s socket type not implemented yet.' %
                 uri_properties['type'])
@@ -62,7 +66,9 @@ class InterfaceMeta(type):
             identity = dct['identity'] if 'identity' in dct else None,
             filter = dct['filter'] if 'filter' in dct else None)
 
-        ins = type.__new__(mcs, name, bases, {})
+        ins = type.__new__(mcs, name, bases, {
+                'highWaterMark' : new_dct['hwm']
+                })
 
         deferred(mcs.register, ins, dct['name'], new_dct)
 
@@ -116,16 +122,58 @@ class ZMQSubscriberInterface(txzmq.ZmqSubConnection):
 
 
 class ZMQPublisherInterface(txzmq.ZmqPubConnection):
-    def __init__(self, host, identity=None, hwm=0, **kw):
+    def __init__(self, host, identity=None, **kw):
         super(ZMQPublisherInterface, self).__init__(factory, 
                 txzmq.ZmqEndpoint('bind', host), identity)
-
-    def get_host(self):
-        raise NotImplementedError("We have no idea how to see who is connected")
 
     def send_out(self, message):
         self.publish(message.body, message.topic)
 
+    def get_host(self):
+        raise NotImplementedError("We have no idea how to see who is connected")
+
     out_host = property(get_host)
 
     in_host = property((lambda: None))
+
+
+class ZMQPushInterface(txzmq.ZmqPushConnection):
+    def __init__(self, host, identity=None, **kw):
+        super(ZMQPushInterface, self).__init__(factory,
+            txzmq.ZmqEndpoint('bind', host), identity)
+
+    def send_out(self, message):
+        self.push(message.body)
+
+    def get_host(self):
+        raise NotImplementedError("We have no idea how to see who is connected")
+
+    out_host = property(get_host)
+
+    in_host = property((lambda: None))
+
+
+class ZMQPullInterface(txzmq.ZmqPullConnection):
+    def __init__(self, host, filter=None, **kw):
+        super(ZMQPullInterface, self).__init__(factory)
+
+        self.connectTo(host)
+
+        self.filter = filter
+
+    def get_host(self):
+        return [endpoint.address for endpoint in self.endpoints]
+
+    in_host = property(get_host)
+
+    out_host = property((lambda: None))
+
+    def onPull(self, message):
+        msg = ZMQMessage(message[0], None, self)
+        self.filter(msg)
+        
+    def connectTo(self, host):
+        self.addEndpoints([txzmq.ZmqEndpoint('connect', host)])
+
+    def send_out(self, message):
+        raise NotImplementedError("Not supported")

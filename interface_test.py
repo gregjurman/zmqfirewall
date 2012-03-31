@@ -18,12 +18,12 @@ def sin_gen():
 
 
 
-class FakeExternalPublisher(Interface):
+class FakeExternalPusher(Interface):
     """
         Our fake 'external server' that is pushing messages 
         into the firewall. 
     """
-    connection_uri = 'pub-tcp://0.0.0.0:7000'
+    connection_uri = 'push-tcp://0.0.0.0:7000'
     name = 'fake_incoming'
 
 
@@ -67,17 +67,17 @@ def routing_filter(message):
         message.topic = 'integers'
     else:
         message.topic = 'non_integers'
+
     get_interface('ipc_sine_pub').send_out(message)
 
 
-class MessageRoutingSubscriber(Interface):
+class MessageRoutingPuller(Interface):
     """
         This is our incoming subcriber that listens for messages from
         the 'sinewave' topic.
     """
-    connection_uri = 'sub-tcp://localhost:7000'
+    connection_uri = 'pull-tcp://localhost:7000'
     name = 'messagerouter'
-    topics = ['sinewave']
     filter = routing_filter
    
 
@@ -89,7 +89,7 @@ def test_pubsub():
     '''
     sin_wave = sin_gen()
     def publish():
-        get_interface('fake_incoming').publish(str(sin_wave.next()), 'sinewave')
+        get_interface('fake_incoming').push(str(sin_wave.next()))
         reactor.callLater(1, publish)
 
     reactor.callLater(1, publish)
