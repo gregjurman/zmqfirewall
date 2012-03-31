@@ -1,20 +1,20 @@
 class ZMQMessage(object):
     def __init__(self, message, tag, interface=None):
         self.message = message
-        self.topic = tag
+        self._topic = tag
         self.interface = interface
 
     def get_topic(self):
-        return self.topic
+        return self._topic
 
     def set_topic(self, value):
         if isinstance(value, str):
-            self.topic = value
+            self._topic = value
         else:
             raise ValueError, "value must be a str object"
 
     def del_topic(self):
-        self.topic = None
+        self._topic = None
 
     topic = property(get_topic, set_topic, del_topic, "Message topic")
 

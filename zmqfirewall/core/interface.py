@@ -20,7 +20,6 @@ def early_deferred(func, *args, **kw):
     _deferred_calls.insert(0, defer)
 
 def do_deferreds():
-    print "Running deferreds"
     for call in _deferred_calls:
         call()
 
@@ -30,8 +29,6 @@ class InterfaceMeta(type):
     registered_interfaces = {}
 
     def __new__(mcs, name, _bases, dct):
-        print name, dct
-
         if name is "Interface":
             return type.__new__(mcs, name, _bases, dct)
 
@@ -65,11 +62,16 @@ class InterfaceMeta(type):
             identity = dct['identity'] if 'identity' in dct else None,
             filter = dct['filter'] if 'filter' in dct else None)
 
-        ins = type.__new__(mcs, name, bases, {})(**new_dct)
-       
-        mcs.registered_interfaces[dct['name']] = ins
+        ins = type.__new__(mcs, name, bases, {})
+
+        deferred(mcs.register, ins, dct['name'], new_dct)
 
         return ins
+
+    @classmethod
+    def register(mcs, cls, name, new_dct):
+        ins = cls(**new_dct)
+        mcs.registered_interfaces[name] = ins
 
     @classmethod
     def get_interface_by_name(mcs, name):
@@ -81,16 +83,19 @@ class Interface(object):
 
 
 class ZMQSubscriberInterface(txzmq.ZmqSubConnection):
-    def __init__(self, host, topics=None, **kw):
+    def __init__(self, host, topics=None, filter=None, **kw):
         super(ZMQSubscriberInterface, self).__init__(factory)
 
-        if not isinstance(topics, list):
+        if topics and not isinstance(topics, list):
             topics = list((topics,))
 
-        deferred(self.connectTo, host)
+        self.connectTo(host)
 
-        for topic in topics:
-            deferred(self.subscribe, topic)
+        if topics:
+            for topic in topics:
+                self.subscribe(topic)
+
+        self.filter = filter
 
     def get_host(self):
         return [endpoint.address for endpoint in self.endpoints]
@@ -100,7 +105,6 @@ class ZMQSubscriberInterface(txzmq.ZmqSubConnection):
     out_host = property((lambda: None))
 
     def gotMessage(self, message, tag):
-        print message, tag
         msg = ZMQMessage(message, tag, self)
         self.filter(msg)
         
@@ -113,7 +117,6 @@ class ZMQSubscriberInterface(txzmq.ZmqSubConnection):
 
 class ZMQPublisherInterface(txzmq.ZmqPubConnection):
     def __init__(self, host, identity=None, hwm=0, **kw):
-        print factory, host, identity
         super(ZMQPublisherInterface, self).__init__(factory, 
                 txzmq.ZmqEndpoint('bind', host), identity)
 
