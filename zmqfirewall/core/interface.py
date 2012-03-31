@@ -83,9 +83,18 @@ class InterfaceMeta(type):
     def get_interface_by_name(mcs, name):
         return mcs.registered_interfaces[name]
 
+    @classmethod
+    def shutdown_all(mcs):
+        for interface in mcs.registered_interfaces.values():
+            interface.shutdown()
+
 
 class Interface(object):
     __metaclass__ = InterfaceMeta
+
+    @classmethod
+    def shutdown(self):
+        InterfaceMeta.shutdown_all()
 
 
 class ZMQSubscriberInterface(txzmq.ZmqSubConnection):

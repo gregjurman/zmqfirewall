@@ -4,6 +4,8 @@ from zmqfirewall.core.interface import Interface
 from zmqfirewall.core.reactor import reactor
 from zmqfirewall.utils import get_interface
 
+import signal
+
 # Define a helper that generates messages for us
 from math import sin, radians
 def sin_gen():
@@ -15,7 +17,6 @@ def sin_gen():
 
 # Right now any subscribing interfaces that rely on defined publishing
 # interfaces need to be declared after the publishing interface
-
 
 
 class FakeExternalPusher(Interface):
@@ -63,7 +64,7 @@ def routing_filter(message):
         and non-integers, then publishes them to our IPC based
         socket.
     '''
-    if message.body in ['0.0', '1.0']:
+    if message.body in ['0.0', '1.0', '-1.0']:
         message.topic = 'integers'
     else:
         message.topic = 'non_integers'
@@ -81,7 +82,7 @@ class MessageRoutingPuller(Interface):
     filter = routing_filter
    
 
-def test_pubsub():
+def main():
     '''
         because we are internally generating messages (rather than being a daemon)
         We need to generate some traffic, we'll use our fake incoming publisher
@@ -94,7 +95,22 @@ def test_pubsub():
 
     reactor.callLater(1, publish)
 
-    reactor.run()
+    def handle_signal(signum, stackframe):
+        from zmqfirewall.core.reactor import reactor
+        Interface.shutdown()
+        if signum in [signal.SIGHUP, signal.SIGINT]:
+            try:
+                reactor.stop()
+            except ReactorNotRunning:
+                pass
+
+    signal.signal(signal.SIGHUP, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
+
+    print("Starting zmqfirewall")
+    reactor.run(installSignalHandlers=False)
+    print("Stopping zmqfirewall")
+
 
 if __name__ == "__main__":
-    test_pubsub()
+    main()
