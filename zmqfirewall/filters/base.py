@@ -2,6 +2,8 @@ import logging
 import zmqfirewall.actions
 from zmqfirewall.exceptions import DivertAction, InterruptAction
 
+from zmqfirewall.core.interface import Interface
+
 from collections import deque
 
 __all__ = ['FirewallFilter']
@@ -29,7 +31,6 @@ class FilterMeta(type):
         index_name = ins.name
 
         if name not in [x.__name__ for x in mcs._registered_filters]:
-
             if index_name in mcs._filter_index:
                 # Hold on, something is trying to overwrite a registered filter
                 raise NameError, "A filter named '%s' is already registered!" % index_name
@@ -59,6 +60,8 @@ class FirewallFilter(object):
 
     name = None
 
+    out_interface = None
+
     @classmethod
     def req(cls, **kw):
         """
@@ -79,12 +82,13 @@ class FirewallFilter(object):
                 message = action(message)
             except InterruptAction as interruption:
                 # Do this action then return the result
-                return interruption(message)
+                message = interruption(message)
             except DivertAction as diversion:
                 # Append the diversion so its run next
                 actions.appendleft(diversion)
             except zmqfirewall.actions.DropMessageAction:
                 # Drop the message completely
-                return None
+                message = None
 
-        return message
+        if self.out_interface and message:
+           self.out_interface.send_out(message)
