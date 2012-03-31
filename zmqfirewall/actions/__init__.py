@@ -1,2 +1,2 @@
-from bases import Action
-from simple import AcceptMessageAction, DropMessageAction
+from base import *
+from simple import *
