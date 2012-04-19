@@ -97,7 +97,7 @@ def main():
 
     def handle_signal(signum, stackframe):
         from zmqfirewall.core.reactor import reactor
-        Interface.shutdown()
+        Interface.shutdown() # sutdown all loaded Interfaces
         if signum in [signal.SIGHUP, signal.SIGINT]:
             try:
                 reactor.stop()
