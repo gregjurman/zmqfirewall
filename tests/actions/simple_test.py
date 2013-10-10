@@ -5,7 +5,7 @@ from nose.tools import eq_
 
 test_msg = Message(
     body="I am the cheese",
-    from_host="127.0.0.1", 
+    from_host="127.0.0.1",
     topic='test')
 
 test_msg_topic = Message(
@@ -16,7 +16,6 @@ test_msg_topic = Message(
 
 def test_default_filter_action():
     filt = za.FilterTopicAction(['test'])
-    
     out = filt.action(test_msg)
     eq_(out, test_msg)
 
@@ -26,9 +25,9 @@ def test_default_filter_action():
     except za.DropMessageAction:
         pass
 
+
 def test_callable_filter_action():
     filt = za.FilterTopicAction(['test'])
-    
     out = filt(test_msg)
     eq_(out, test_msg)
 
@@ -38,8 +37,11 @@ def test_callable_filter_action():
     except za.DropMessageAction:
         pass
 
+
 def test_filter_str_action():
-    nfilt = za.FilterTopicAction(['test'], on_success='drop', on_failure='accept')
+    nfilt = za.FilterTopicAction(['test'],
+                                 on_success='drop',
+                                 on_failure='accept')
 
     try:
         nfilt.action(test_msg)
@@ -61,9 +63,9 @@ def test_filter_bad_action():
     except ValueError as e:
         eq_(str(e), 'on_success must be a string or Action, got None')
 
+
 def test_accept_action():
     out = za.AcceptMessageAction.action(test_msg)
-
     eq_(test_msg, out)
 
 
@@ -73,6 +75,7 @@ def test_drop_action():
         assert(False)
     except za.DropMessageAction:
         pass
+
 
 def test_custom_action():
     class MangleTestAction(za.Action):

@@ -2,10 +2,12 @@ import zmqfirewall.actions
 
 from nose.tools import eq_
 
+
 def test_good_action():
     class GoodActionTestAction(zmqfirewall.actions.Action):
         def action(self, message):
             return message
+
 
 def test_missing_action():
     try:
@@ -15,6 +17,7 @@ def test_missing_action():
         assert(False)
     except AttributeError, e:
         eq_(str(e), 'MissingActionTestAction is missing an action callback')
+
 
 def test_bad_action():
     try:
@@ -40,7 +43,9 @@ def test_duplicate_name_action():
 
         assert(False)
     except NameError as e:
-        eq_(str(e),"An action named 'workingactiontest' is already registered!")
+        eq_(str(e),
+            "An action named 'workingactiontest' is already registered!")
+
 
 def test_duplicate_cls_name():
     try:
