@@ -2,7 +2,7 @@ import zmqfirewall.filters
 from zmqfirewall.actions import AcceptMessageAction, FilterTopicAction
 from zmqfirewall.utils import get_filter, divert, interrupt
 
-from nose.tools import eq_
+from nose.tools import eq_, assert_is_not_none
 
 from tests.helper import Message
 
@@ -33,6 +33,7 @@ def test_basic_filter_2():
 
 def test_basic_filter_process():
     filt = get_filter('iamthecheese')
+    assert_is_not_none(filt)
 
     out = filt(test_msg)
     eq_(test_msg, out)
@@ -41,7 +42,7 @@ def test_basic_filter_process():
     eq_(None, out)
 
 
-def bad_filter_chain_test():
+def test_bad_filter_chain():
     try:
         class BadChainFilter(zmqfirewall.filters.FirewallFilter):
             pass
@@ -50,7 +51,7 @@ def bad_filter_chain_test():
         eq_(str(e), 'BadChainFilter does not have a valid chain')
 
 
-def duplicate_filter_name_test():
+def test_duplicate_filter_name():
     try:
         class IAmTheCheeseFilter(zmqfirewall.filters.FirewallFilter):
             chain = [AcceptMessageAction]
@@ -120,3 +121,4 @@ def interrupt_filter_test():
     bad_test_msg = Message("I am the ham", "localhost", topic="bad_topic")
     out = InterruptFilterTestFilter.handle(bad_test_msg)
     eq_(str(out), 'I am the ham. I am not the cheese')
+
