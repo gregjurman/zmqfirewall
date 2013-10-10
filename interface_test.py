@@ -8,6 +8,8 @@ import signal
 
 # Define a helper that generates messages for us
 from math import sin, radians
+
+
 def sin_gen():
     i = 0
     while True:
@@ -21,8 +23,8 @@ def sin_gen():
 
 class FakeExternalPusher(Interface):
     """
-        Our fake 'external server' that is pushing messages 
-        into the firewall. 
+        Our fake 'external server' that is pushing messages
+        into the firewall.
     """
     connection_uri = 'push-tcp://0.0.0.0:7000'
     name = 'fake_incoming'
@@ -80,15 +82,16 @@ class MessageRoutingPuller(Interface):
     connection_uri = 'pull-tcp://localhost:7000'
     name = 'messagerouter'
     filter = routing_filter
-   
+
 
 def main():
     '''
-        because we are internally generating messages (rather than being a daemon)
-        We need to generate some traffic, we'll use our fake incoming publisher
-        to do so.
+        because we are internally generating messages (rather than being a
+        daemon) We need to generate some traffic, we'll use our fake
+        incoming publisher to do so.
     '''
     sin_wave = sin_gen()
+
     def publish():
         get_interface('fake_incoming').push(str(sin_wave.next()))
         reactor.callLater(1, publish)
@@ -97,7 +100,7 @@ def main():
 
     def handle_signal(signum, stackframe):
         from zmqfirewall.core.reactor import reactor
-        Interface.shutdown() # sutdown all loaded Interfaces
+        Interface.shutdown()  # shutdown all loaded Interfaces
         if signum in [signal.SIGHUP, signal.SIGINT]:
             try:
                 reactor.stop()

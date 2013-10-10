@@ -31,7 +31,7 @@ try:
     elif 'win' in sys.platform:
         from twisted.internet import iocpreactor
         iocpreactor.install()
-except (ImportError, AssertionError): # reactor already installed
+except (ImportError, AssertionError):  # reactor already installed
     pass
 
 from twisted.internet import reactor

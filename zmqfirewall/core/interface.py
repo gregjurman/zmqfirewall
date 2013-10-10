@@ -11,19 +11,23 @@ connection_string_regex = re.compile(r'^(?P<type>[\w]{3,4})-(?P<uri>.*)$')
 
 _deferred_calls = []
 
+
 def deferred(func, *args, **kw):
     defer = functools.partial(func, *args, **kw)
     _deferred_calls.append(defer)
 
+
 def early_deferred(func, *args, **kw):
     defer = functools.partial(func, *args, **kw)
     _deferred_calls.insert(0, defer)
+
 
 def do_deferreds():
     for call in _deferred_calls:
         call()
 
 reactor.callLater(0, do_deferreds)
+
 
 class InterfaceMeta(type):
     registered_interfaces = {}
@@ -49,8 +53,8 @@ class InterfaceMeta(type):
             bases = (ZMQPullInterface, Interface, )
         else:
             raise NotImplementedError('%s socket type not implemented yet.' %
-                uri_properties['type'])
-    
+                                      uri_properties['type'])
+
         topics = []
         if 'topics' in dct:
             topics = dct['topics']
@@ -60,15 +64,15 @@ class InterfaceMeta(type):
                 raise AttributeError('topics must be iterable')
 
         new_dct = dict(
-            host = uri_properties['uri'],
-            topics = topics,
-            hwm = dct['hwm'] if 'hwm' in dct else 0,
-            identity = dct['identity'] if 'identity' in dct else None,
-            filter = dct['filter'] if 'filter' in dct else None)
+            host=uri_properties['uri'],
+            topics=topics,
+            hwm=dct['hwm'] if 'hwm' in dct else 0,
+            identity=dct['identity'] if 'identity' in dct else None,
+            filter=dct['filter'] if 'filter' in dct else None)
 
         ins = type.__new__(mcs, name, bases, {
-                'highWaterMark' : new_dct['hwm']
-                })
+                           'highWaterMark': new_dct['hwm']
+                           })
 
         deferred(mcs.register, ins, dct['name'], new_dct)
 
@@ -122,7 +126,7 @@ class ZMQSubscriberInterface(txzmq.ZmqSubConnection):
     def gotMessage(self, message, tag):
         msg = ZMQMessage(message, tag, self)
         self.filter(msg)
-        
+
     def connectTo(self, host):
         self.addEndpoints([txzmq.ZmqEndpoint('connect', host)])
 
@@ -132,14 +136,15 @@ class ZMQSubscriberInterface(txzmq.ZmqSubConnection):
 
 class ZMQPublisherInterface(txzmq.ZmqPubConnection):
     def __init__(self, host, identity=None, **kw):
-        super(ZMQPublisherInterface, self).__init__(factory, 
-                txzmq.ZmqEndpoint('bind', host), identity)
+        super(ZMQPublisherInterface,
+              self).__init__(factory,
+                             txzmq.ZmqEndpoint('bind', host), identity)
 
     def send_out(self, message):
         self.publish(message.body, message.topic)
 
     def get_host(self):
-        raise NotImplementedError("We have no idea how to see who is connected")
+        raise NotImplementedError("No idea how to see who is connected")
 
     out_host = property(get_host)
 
@@ -148,14 +153,15 @@ class ZMQPublisherInterface(txzmq.ZmqPubConnection):
 
 class ZMQPushInterface(txzmq.ZmqPushConnection):
     def __init__(self, host, identity=None, **kw):
-        super(ZMQPushInterface, self).__init__(factory,
-            txzmq.ZmqEndpoint('bind', host), identity)
+        super(ZMQPushInterface,
+              self).__init__(factory,
+                             txzmq.ZmqEndpoint('bind', host), identity)
 
     def send_out(self, message):
         self.push(message.body)
 
     def get_host(self):
-        raise NotImplementedError("We have no idea how to see who is connected")
+        raise NotImplementedError("No idea how to see who is connected")
 
     out_host = property(get_host)
 
@@ -180,7 +186,7 @@ class ZMQPullInterface(txzmq.ZmqPullConnection):
     def onPull(self, message):
         msg = ZMQMessage(message[0], None, self)
         self.filter(msg)
-        
+
     def connectTo(self, host):
         self.addEndpoints([txzmq.ZmqEndpoint('connect', host)])
 

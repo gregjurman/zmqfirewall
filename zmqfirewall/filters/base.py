@@ -11,6 +11,7 @@ __all__ = ['FirewallFilter']
 core_log = logging.getLogger('zmqfirewall.core')
 filter_log = logging.getLogger('zmqfirewall.filter')
 
+
 class FilterMeta(type):
     _registered_filters = {}
     _filter_index = {}
@@ -18,14 +19,14 @@ class FilterMeta(type):
     def __new__(mcs, name, bases, dct):
         if name != 'FirewallFilter':
             if 'chain' not in dct or not isinstance(dct['chain'], list):
-                raise AttributeError, '%s does not have a valid chain' % name
+                raise AttributeError('%s does not have a valid chain' % name)
         else:
             return type.__new__(mcs, name, bases, dct)
 
         if 'name' not in dct or dct['name'] is None:
             # Rip of the word filter from the end if it is there
             dct['name'] = name.lower()[::-1].replace('retlif', '', 1)[::-1]
-        
+
         ins = type.__new__(mcs, name, bases, dct)
 
         index_name = ins.name
@@ -33,7 +34,8 @@ class FilterMeta(type):
         if name not in [x.__name__ for x in mcs._registered_filters]:
             if index_name in mcs._filter_index:
                 # Hold on, something is trying to overwrite a registered filter
-                raise NameError, "A filter named '%s' is already registered!" % index_name
+                raise NameError("A filter named '%s' is already registered!" %
+                                index_name)
 
             handler = ins.req()
             ins.handle = handler
@@ -41,9 +43,10 @@ class FilterMeta(type):
             mcs._registered_filters[ins] = handler
             mcs._filter_index[index_name] = ins
 
-            core_log.info("Added %s to filter registry as '%s'" % (name, index_name))
+            core_log.info("Added %s to filter registry as '%s'" %
+                          (name, index_name))
         else:
-            raise TypeError, "%s is already registered!" % name
+            raise TypeError("%s is already registered!" % name)
 
         return ins
 
@@ -73,7 +76,7 @@ class FirewallFilter(object):
         return ins
 
     def __call__(self, message):
-        actions = deque(self.chain) #XXX:maybe we can remove this deque
+        actions = deque(self.chain)  # XXX: maybe we can remove this deque
 
         while(len(actions) > 0):
             action = actions.popleft().action
@@ -91,4 +94,4 @@ class FirewallFilter(object):
                 message = None
 
         if self.out_interface and message:
-           self.out_interface.send_out(message)
+            self.out_interface.send_out(message)

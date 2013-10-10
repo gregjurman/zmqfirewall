@@ -11,7 +11,7 @@ class ZMQMessage(object):
         if isinstance(value, str):
             self._topic = value
         else:
-            raise ValueError, "value must be a str object"
+            raise ValueError("value must be a str object")
 
     def del_topic(self):
         self._topic = None
@@ -25,9 +25,9 @@ class ZMQMessage(object):
         if isinstance(value, str):
             self.message = value
         else:
-            raise ValueError, "value must be a str object"
+            raise ValueError("value must be a str object")
 
     def del_body(self):
         self.message = None
-        
+
     body = property(get_body, set_body, del_body, "Message body")
