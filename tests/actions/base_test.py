@@ -44,7 +44,7 @@ def test_duplicate_name_action():
         assert(False)
     except NameError as e:
         eq_(str(e),
-            "An action named 'workingactiontest' is already registered!")
+            "Action named 'workingactiontest' already registered!")
 
 
 def test_duplicate_cls_name():
