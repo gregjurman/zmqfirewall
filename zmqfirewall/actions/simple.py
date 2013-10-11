@@ -51,6 +51,8 @@ class FilterTopicAction(base.Action):
 
     def action(self, message):
         if message.topic in self.topics:
+            print "passed"
             return self.on_success.action(message)
         else:
+            print "failed"
             return self.on_failure.action(message)

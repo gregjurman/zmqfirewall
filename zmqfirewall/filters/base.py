@@ -54,15 +54,24 @@ class FilterMeta(type):
     def get_filter_by_name(mcs, name):
         return mcs._registered_filters[mcs._filter_index[name]]
 
+    @classmethod
+    def deregister(mcs, name):
+        core_log.info("De-registering %s from filters" % name)
+        del mcs._registered_filters[mcs._filter_index[name]]
+        del mcs._filter_index[name]
+
+    @classmethod
+    def deregisterAll(mcs):
+        core_log.info("De-registering all filters!")
+        mcs._registered_filters.clear()
+        mcs._filter_index.clear()
+
 
 class FirewallFilter(object):
     """Base filter handler"""
     __metaclass__ = FilterMeta
-
     chain = None
-
     name = None
-
     out_interface = None
 
     @classmethod
@@ -86,6 +95,7 @@ class FirewallFilter(object):
             except InterruptAction as interruption:
                 # Do this action then return the result
                 message = interruption(message)
+                return message
             except DivertAction as diversion:
                 # Append the diversion so its run next
                 actions.appendleft(diversion)
@@ -95,3 +105,5 @@ class FirewallFilter(object):
 
         if self.out_interface and message:
             self.out_interface.send_out(message)
+        else:
+            return message
