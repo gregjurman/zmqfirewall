@@ -1,6 +1,8 @@
 import zmqfirewall.filters as zmf
+from zmqfirewall.actions import Action
+from zmqfirewall.actions import AcceptMessageAction, FilterTopicAction
+from zmqfirewall.actions.base import ActionMeta
 from zmqfirewall.filters.base import FilterMeta
-from zmqfirewall.actions import AcceptMessageAction, FilterTopicAction, Action
 from zmqfirewall.utils import get_filter, divert, interrupt
 
 from nose.tools import eq_, assert_is_none, assert_is_not_none, raises
@@ -40,6 +42,10 @@ class FilterTest(TestCase):
     def setUp(self):
         # clean up all filters just in case
         FilterMeta.deregisterAll()
+        ActionMeta.deregisterAll()
+        # import, as this causes a re-reg to occur
+        AcceptMessageAction.register()
+        FilterTopicAction.register()
 
 
     def defineCheese(self):
@@ -124,6 +130,7 @@ class FilterTest(TestCase):
 
 
     def test_interrupt_filter(self):
+        AppendHelloAction.register()
         class InterruptFilterTestFilter(zmf.FirewallFilter):
             chain = [InterruptFilterCheeseAction, AppendNotCheeseAction]
 

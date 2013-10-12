@@ -20,6 +20,7 @@ class ActionMeta(type):
         ins = type.__new__(mcs, name, bases, dct)
 
         # This works if the action doesn't expect any __init__
+        handler = None
         try:
             handler = ins.req()
             # Short ciruit
@@ -28,34 +29,50 @@ class ActionMeta(type):
             pass
 
         if 'no_register' not in dct or not dct['no_register']:
-            if name not in [x.__name__ for x in mcs._registered_actions]:
-
-                if ins.name is None:
-                    # Rip of the word action from the end if it is there
-                    _iname = ins.__name__.lower()
-                    index_name = _iname[::-1].replace('noitca', '', 1)[::-1]
-                else:
-                    index_name = ins.name
-
-                if index_name in mcs._action_index:
-                    # Hold on, something is trying to overwrite a regged action
-                    raise NameError("Action named '%s' already registered!" %
-                                    index_name)
-
-                mcs._registered_actions[ins] = handler
-                mcs._action_index[index_name] = ins
-
-                core_log.info("Added %s to action registry as '%s'" %
-                              (name, index_name))
-            else:
-                raise TypeError("%s is already registered!" % name)
+            mcs.register(name, ins, handler)
 
         return ins
+
+
+    @classmethod
+    def register(mcs, name, ins, handler):
+        if name not in [x.__name__ for x in mcs._registered_actions]:
+            if ins.name is None:
+                # Rip of the word action from the end if it is there
+                _iname = ins.__name__.lower()
+                index_name = _iname[::-1].replace('noitca', '', 1)[::-1]
+            else:
+                index_name = ins.name
+
+            if index_name in mcs._action_index:
+                # Hold on, something is trying to overwrite a regged action
+                raise NameError("Action named '%s' already registered!" %
+                                index_name)
+
+            mcs._registered_actions[ins] = handler
+            mcs._action_index[index_name] = ins
+
+            core_log.info("Added %s to action registry as '%s'" %
+                            (name, index_name))
+        else:
+            raise TypeError("%s is already registered!" % name)
+
 
     @classmethod
     def get_action_by_name(mcs, name):
         return mcs._registered_actions[mcs._action_index[name]]
 
+    @classmethod
+    def deregister(mcs, name):
+        core_log.info("De-registering '%s' action!" % name)
+        del mcs._registered_actions[mcs._action_index[name]]
+        del mcs._action_index[name]
+
+    @classmethod
+    def deregisterAll(mcs):
+        core_log.info("De-registering all actions!")
+        mcs._registered_actions.clear()
+        mcs._action_index.clear()
 
 class Action(object):
     """Base action handler"""
@@ -64,6 +81,17 @@ class Action(object):
     action = (lambda: None)
     log_message = True
     name = None
+
+    @classmethod
+    def register(cls):
+        handler = None
+        try:
+            handler = cls.req()
+            cls.action = handler.action
+        except TypeError:
+            pass
+
+        ActionMeta.register(cls.__name__, cls, handler)
 
     @classmethod
     def req(cls, **kw):

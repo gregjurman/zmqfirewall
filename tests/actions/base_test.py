@@ -1,60 +1,60 @@
-import zmqfirewall.actions
+import zmqfirewall.actions as zma
+from zmqfirewall.actions.base import ActionMeta
 
-from nose.tools import eq_
+from nose.tools import eq_, raises, assert_is_not_none
+from unittest import TestCase
 
-
-def test_good_action():
-    class GoodActionTestAction(zmqfirewall.actions.Action):
-        def action(self, message):
-            return message
-
-
-def test_missing_action():
-    try:
-        class MissingActionTestAction(zmqfirewall.actions.Action):
-            pass
-
-        assert(False)
-    except AttributeError, e:
-        eq_(str(e), 'MissingActionTestAction is missing an action callback')
+class ActionTest(TestCase):
+    def setUp(self):
+        ActionMeta.deregisterAll()
 
 
-def test_bad_action():
-    try:
-        class BadActionTestAction(zmqfirewall.actions.Action):
-            action = "I am not callable"
-
-        assert(False)
-    except AttributeError, e:
-        eq_(str(e), 'BadActionTestAction is missing an action callback')
-
-
-def test_duplicate_name_action():
-    try:
-        class WorkingActionTestAction(zmqfirewall.actions.Action):
+    def test_good_action(self):
+        class GoodActionTestAction(zma.Action):
             def action(self, message):
                 return message
 
-        class IdiotlyNamedAction(zmqfirewall.actions.Action):
+
+    @raises(AttributeError)
+    def test_missing_action(self):
+        class MissingActionTestAction(zma.Action):
+            pass
+
+
+    @raises(AttributeError)
+    def test_bad_action(self):
+        class BadActionTestAction(zma.Action):
+            action = "I am not callable"
+
+
+    @raises(NameError)
+    def test_duplicate_name_action(self):
+        class WorkingActionTestAction(zma.Action):
+            def action(self, message):
+                return message
+
+        class IdiotlyNamedAction(zma.Action):
             name = 'workingactiontest'
 
             def action(self, message):
                 pass
 
-        assert(False)
-    except NameError as e:
-        eq_(str(e),
-            "Action named 'workingactiontest' already registered!")
 
-
-def test_duplicate_cls_name():
-    try:
-        class SameNameClassTestAction(zmqfirewall.actions.Action):
+    def defineTestAction(self):
+        class GoodActionTestAction(zma.Action):
             def action(self, msg):
-                pass
+                return msg
 
-        import helper
 
-        assert(False)
-    except TypeError as e:
-        eq_(str(e), 'SameNameClassTestAction is already registered!')
+    @raises(TypeError)
+    def test_duplicate_class_action(self):
+        self.defineTestAction()
+        self.defineTestAction()
+
+    @raises(KeyError)
+    def test_deregged_action(self):
+        self.defineTestAction()
+        assert_is_not_none(ActionMeta.get_action_by_name('goodactiontest'))
+        ActionMeta.deregister('goodactiontest')
+        ActionMeta.get_action_by_name('goodactiontest')
+
